@@ -2,6 +2,10 @@
 # Build and test ASP.NET Core projects targeting the full .NET Framework.
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
 - main
@@ -10,34 +14,51 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-  username: 'ananduser'
+ solution: '**/*.sln'
+ buildPlatform: 'Any CPU'
+ buildConfiguration: 'Release'
+ samplevar: 'testvar'
+ artifactName: '$(Build.DefinitionName)_$(Build.BuildId)'
+ group: demoVG
+stages:
+- stage: Build
+  displayName: Build stage
+  variables:
+    stageVariable: "Hello from stage-level variable"
+  jobs:  
+  - job: Build
+    displayName: Build stage
+    variables:
+      jobVariable: "Hello from job-level variable"
+    steps:
+     - task: DotNetCoreCLI@2
+       displayName: Build
+       inputs:
+        command: build
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)' # Update this to match your needs
+     - script: 
+        echo Artifact name is $(artifactName)
+        echo Building in $(buildConfiguration) mode
+        echo jobvariable $(jobVariable)
+        echo $(clientid)
+     - script:
+        echo Predefined variables print
+        echo "Building on branch $(Build.SourceBranch)"
+        echo "Current build number $(Build.BuildNumber)"
+        echo "Definition name $(Build.DefinitionName)"
+- stage: Publish 
+  displayName: Publish stage
+  jobs:  
+  - job: Publish
+    displayName: Publish the artifact
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: publish
+        publishWebProjects: True
+        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: True
 
-steps:
-- task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
 
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)' # Update this to match your needs
-- task: DotNetCoreCLI@2
-  inputs:
-    command: publish
-    publishWebProjects: True
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: True
-- task: AzureRmWebAppDeployment@4
-  inputs:
-    ConnectionType: 'AzureRM'
-    azureSubscription: 'demoaz'
-    appType: 'webApp'
-    WebAppName: 'demowebapp1203'
-    packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
