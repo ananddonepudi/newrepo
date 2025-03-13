@@ -61,6 +61,6 @@ stages:
         arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
         zipAfterPublish: True
     - script: 
-        echo jobvariable $(jobVariable)
+        echo $(clientid)
 
 
