@@ -20,6 +20,7 @@ variables:
  samplevar: 'testvar'
  artifactName: '$(Build.DefinitionName)_$(Build.BuildId)'
  group: demoVG
+
 stages:
 - stage: Build
   displayName: Build stage
@@ -59,6 +60,7 @@ stages:
         publishWebProjects: True
         arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
         zipAfterPublish: True
-
+    - script: 
+        echo jobvariable $(jobVariable)
 
 
