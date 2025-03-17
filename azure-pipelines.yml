@@ -47,3 +47,10 @@ stages:
         command: 'Push an image'
         imageName: '$(ImageName)'
       condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    - task: AzureContainerApps@1
+      inputs:
+         appSourcePath: '$(Build.SourcesDirectory)/src'
+         azureSubscription: 'demoaz'
+         acrName: 'myadregistry'
+         containerAppName: 'myadcontainerapp1810'
+         resourceGroup: 'demoRG'
